@@ -18,46 +18,20 @@ LOGGER = polyinterface.LOGGER
 @node_funcs.add_functions_as_methods(node_funcs.functions)
 class DailyNode(polyinterface.Node):
     id = 'daily'
-    # TODO: add wind speed min/max, pop, winddir min/max
     drivers = [
             {'driver': 'GV19', 'value': 0, 'uom': 25},     # day of week
             {'driver': 'GV0', 'value': 0, 'uom': 4},       # high temp
             {'driver': 'GV1', 'value': 0, 'uom': 4},       # low temp
             {'driver': 'CLIHUM', 'value': 0, 'uom': 22},   # humidity
             {'driver': 'BARPRES', 'value': 0, 'uom': 117}, # pressure
-            {'driver': 'GV11', 'value': 0, 'uom': 25},     # coverage
-            {'driver': 'GV12', 'value': 0, 'uom': 25},     # intensity
             {'driver': 'GV13', 'value': 0, 'uom': 25},     # weather
             {'driver': 'GV14', 'value': 0, 'uom': 22},     # clouds
-            {'driver': 'SPEED', 'value': 0, 'uom': 49},    # wind speed
-            {'driver': 'GV5', 'value': 0, 'uom': 49},      # gust speed
             {'driver': 'GV6', 'value': 0, 'uom': 82},      # precipitation
-            {'driver': 'GV15', 'value': 0, 'uom': 82},     # snow depth
             {'driver': 'GV7', 'value': 0, 'uom': 49},      # wind speed max
             {'driver': 'GV8', 'value': 0, 'uom': 49},      # wind speed min
             {'driver': 'GV18', 'value': 0, 'uom': 22},     # pop
-            {'driver': 'UV', 'value': 0, 'uom': 71},       # UV index
             {'driver': 'GV20', 'value': 0, 'uom': 106},    # mm/day
             ]
-    uom = {'GV19': 25,
-            'GV0': 4,
-            'GV1': 4,
-            'CLIHUM': 22,
-            'BARPRES': 117,
-            'GV11': 25,
-            'GV12': 25,
-            'GV13': 25,
-            'GV14': 22,
-            'GV15': 82,
-            'SPEED': 49,
-            'GV5': 49,
-            'GV6': 82,
-            'GV7': 49,
-            'GV8': 49,
-            'UV': 71,
-            'GV20': 106,
-            'GV18': 22,
-            }
 
     def set_driver_uom(self, units):
         self.uom = uom.get_uom(units)
@@ -67,37 +41,51 @@ class DailyNode(polyinterface.Node):
         return mm/25.4
 
 
+    def get_min_max(self, key, data):
+        min_val = 0
+        max_val = 0
+        if key in data:
+            for r in data[key]:
+                if 'max' in r:
+                    max_val = r['max']['value']
+                if 'min' in r:
+                    min_val = r['min']['value']
+
+        return (min_val, max_val)
+
     def update_forecast(self, forecast, latitude, elevation, plant_type, tags, force):
 
         epoch = int(forecast['timestamp'])
         dow = time.strftime("%w", time.gmtime(epoch))
         LOGGER.info('Day of week = ' + dow)
-        LOGGER.info(tags)
 
-        humidity = (forecast[tags['humidity_min']] + forecast[tags['humidity_max']]) / 2
+        (vmin, vmax) = self.get_min_max('humidity', forecast)
+        LOGGER.debug('humidity = ' + str(vmin) + ' / ' + str(vmax))
+        humidity = (vmin + vmax) / 2
+        #humidity = (forecast['humidity'][0]['min']['value'] + forecast['humidity'][1]['max']['value']) / 2
+
         try:
+            (tmin, tmax) = self.get_min_max('temp', forecast)
+            self.update_driver('GV0', tmax, force, prec=1)
+            self.update_driver('GV1', tmin, force, prec=1)
             self.update_driver('CLIHUM', humidity, force, prec=0)
-            self.update_driver('BARPRES', forecast[tags['pressure']], force, prec=1)
-            self.update_driver('GV0', forecast[tags['temp_max']], force, prec=1)
-            self.update_driver('GV1', forecast[tags['temp_min']], force, prec=1)
-            self.update_driver('GV14', forecast['sky'], force, prec=0)
-            self.update_driver('SPEED', forecast[tags['windspeed']], force, prec=1)
-            self.update_driver('GV5', forecast[tags['gustspeed']], force, prec=1)
-            self.update_driver('GV6', forecast[tags['precipitation']], force, prec=1)
-            self.update_driver('GV7', forecast[tags['wind_max']], force, prec=1)
-            self.update_driver('GV8', forecast[tags['wind_min']], force, prec=1)
-            self.update_driver('GV15', (float(forecast[tags['snowf']]) * 10), force, prec=2)
-            self.update_driver('GV19', int(dow), force)
-            self.update_driver('UV', forecast['uvi'], force, prec=1)
-            self.update_driver('GV18', forecast['pop'], force, prec=1)
 
-            LOGGER.debug('Forecast coded weather = ' + forecast['weatherPrimaryCoded'])
-            weather = forecast['weatherPrimaryCoded'].split(':')[0]
-            self.update_driver('GV11', wx.coverage_codes(weather), force)
-            weather = forecast['weatherPrimaryCoded'].split(':')[1]
-            self.update_driver('GV12', wx.intensity_codes(weather), force)
-            weather = forecast['weatherPrimaryCoded'].split(':')[2]
-            self.update_driver('GV13', wx.weather_codes(weather), force)
+            # TODO: min/max pressure
+            (vmin, vmax) = self.get_min_max('baro_pressure', forecast)
+            self.update_driver('BARPRES', vmax, force, prec=1)
+            # rate: self.update_driver('GV6', forecast['preciptiation'][0]['max']['value'], force, prec=1)
+
+            self.update_driver('GV6', forecast['preciptiation_accumulation']['value'], force, prec=1)
+
+            (vmin, vmax) = self.get_min_max('wind_speed', forecast)
+            self.update_driver('GV7', vmax, force, prec=1)
+            self.update_driver('GV8', vmin, force, prec=1)
+            self.update_driver('GV19', int(dow), force)
+            self.update_driver('GV18', forecast['precipitation_probability']['value'], force, prec=1)
+
+            #TODO: add visibility(min/max), moon phase, rainrate, feelslike(min/max)
+
+            LOGGER.debug('Forecast coded weather = ' + forecast['weather_code']['value'])
 
         except Exception as e:
             LOGGER.error('Forcast: ' + str(e))
@@ -107,18 +95,16 @@ class DailyNode(polyinterface.Node):
         #  convert these.
         J = datetime.datetime.fromtimestamp(epoch).timetuple().tm_yday
 
-        Tmin = forecast[tags['temp_min']]
-        Tmax = forecast[tags['temp_max']]
         Ws = forecast[tags['windspeed']]
         if self.units != 'si':
             LOGGER.info('Conversion of temperature/wind speed required')
-            Tmin = et3.FtoC(Tmin)
-            Tmax = et3.FtoC(Tmax)
+            tmin = et3.FtoC(tmin)
+            tmax = et3.FtoC(tmax)
             Ws = et3.mph2ms(Ws)
         else:
             Ws = et3.kph2ms(Ws)
 
-        et0 = et3.evapotranspriation(Tmax, Tmin, None, Ws, float(elevation), forecast[tags['humidity_max']], forecast[tags['humidity_min']], latitude, float(plant_type), J)
+        et0 = et3.evapotranspriation(tmax, tmin, None, Ws, float(elevation), forecast[tags['humidity_max']], forecast[tags['humidity_min']], latitude, float(plant_type), J)
         if self.units == 'metric' or self.units == 'si' or self.units.startswith('m'):
             self.update_driver('GV20', round(et0, 2), force)
         else:
