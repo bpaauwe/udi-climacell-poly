@@ -1,0 +1,21 @@
+{
+    "name": "Climacell",
+    "docs": "https://github.com/bpaauwe/udi-climacell-poly",
+    "type": "python3",
+    "executable": "climacell.py",
+    "install": "install.sh",
+    "install_cloud": "install_cloud.sh",
+    "description": "Add weather data to the ISY994",
+    "notice": "",
+    "shortPoll": "120",
+    "longPoll": "600",
+    "profile_version": "1.0.0",
+    "credits": [ {
+	"title": "climacell Weather: A node server for weather data",
+    	"author": "Bob Paauwe",
+    	"version": "1.0.0",
+    	"date": "April 30, 2020",
+    	"source": "https://github.com/bpaauwe/udi-climacell-poly",
+	"license": "https://github.com/bpaauwe/udi-climacell-poly/LICENSE"
+	} ]
+}
