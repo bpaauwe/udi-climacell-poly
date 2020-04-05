@@ -11,17 +11,13 @@
       <st id="SPEED" editor="SPEED" />
       <st id="GV5" editor="SPEED" />
       <st id="DISTANC" editor="DISTANCE" />
-      <st id="GV11" editor="COVERAGE" />
-      <st id="GV12" editor="INTENSITY" />
       <st id="GV13" editor="WEATHER" />
       <st id="GV14" editor="PERCENT" />
+      <st id="GV9" editor="int" />
       <st id="GV2" editor="TEMPERATURE" />
-      <st id="GV3" editor="TEMPERATURE" />
-      <st id="GV4" editor="TEMPERATURE" />
       <st id="GV6" editor="RAIN" />
-	  <st id="GV15" editor="RAIN" />
+      <st id="GV17" editor="int" />
       <st id="SOLRAD" editor="SOLARRAD" />
-      <st id="UV" editor="UV" />
     </sts>
     <cmds>
       <sends />
@@ -44,18 +40,12 @@
       <st id="GV1" editor="TEMPERATURE" />
       <st id="CLIHUM" editor="PERCENT" />
       <st id="BARPRES" editor="PRESSURE" />
-      <st id="GV14" editor="PERCENT" />
-      <st id="GV11" editor="COVERAGE" />
-      <st id="GV12" editor="INTENSITY" />
       <st id="GV13" editor="WEATHER" />
-      <st id="SPEED" editor="SPEED" />
-      <st id="GV5" editor="SPEED" />
       <st id="GV6" editor="RAIN" />
-	  <st id="GV15" editor="RAIN" />
+      <st id="RAINRT" editor="RATE" />
       <st id="GV7" editor="SPEED" />
       <st id="GV8" editor="SPEED" />
       <st id="GV18" editor="PERCENT" />
-      <st id="UV" editor="UV" />
       <st id="GV20" editor="ET" />
     </sts>
     <cmds>

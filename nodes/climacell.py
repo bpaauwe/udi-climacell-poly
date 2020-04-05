@@ -20,7 +20,7 @@ import node_funcs
 from datetime import timedelta
 from nodes import climacell_daily
 from nodes import uom
-#from nodes import weather_codes as wx
+from nodes import weather_codes as wx
 
 LOGGER = polyinterface.LOGGER
 
@@ -166,7 +166,7 @@ class Controller(polyinterface.Controller):
                 self.update_driver('DISTANC', jdata['visibility']['value'])
             if 'precipitation' in jdata:
                 self.update_driver('GV6', jdata['precipitation']['value'])
-            if 'dewpoiont' in jdata:
+            if 'dewpoint' in jdata:
                 self.update_driver('DEWPT', jdata['dewpoint']['value'])
             if 'feels_like' in jdata:
                 self.update_driver('GV2', jdata['feels_like']['value'])
@@ -176,11 +176,15 @@ class Controller(polyinterface.Controller):
                 self.update_driver('GV14', jdata['cloud_cover']['value'])
             if 'weather_code' in jdata:
                 LOGGER.debug('weather code = ' + jdata['weather_code']['value'])
+                self.update_driver('GV13', wx.weather_code(jdata['weather_code']['value']))
+            if 'moon_phase' in jdata:
+                self.update_driver('GV9', wx.moon_phase(jdata['moon_phase']['value']))
+            if 'epa_aqi' in jdata:
+                self.update_driver('GV17', jdata['epa_aqi']['value'])
+
 
             '''
             TODO:
-            - moon_phase
-            - epq_aqi
             - ceiling
             '''
         except Exception as e:
@@ -198,7 +202,7 @@ class Controller(polyinterface.Controller):
             request += '&lon=' + self.params.get('Longitude')
             request += '&unit_system=' + self.params.get('Units')
             request += '&start_time=now'
-            enddate = datetime.datetime.utcnow() + timedelta(days=2)
+            enddate = datetime.datetime.utcnow() + timedelta(days=int(self.params.get('Forecast Days')))
             request += '&end_time=' + enddate.strftime('%Y-%m-%dT%H:%M:%SZ')
             request += '&fields=precipitation,precipitation_accumulation,temp,feels_like,wind_speed,baro_pressure,visibility,humidity,wind_direction,precipitation_probability,moon_phase,weather_code'
             headers = {
@@ -251,10 +255,11 @@ class Controller(polyinterface.Controller):
             address = 'forecast_' + str(day)
             title = 'Forecast ' + str(day)
             try:
-                node = aeris_daily.DailyNode(self, self.address, address, title)
+                node = climacell_daily.DailyNode(self, self.address, address, title)
                 self.addNode(node)
-            except:
+            except Excepton as e:
                 LOGGER.error('Failed to create forecast node ' + title)
+                LOGGER.error(e)
 
         self.set_driver_uom(self.params.get('Units'))
 
@@ -334,17 +339,13 @@ class Controller(polyinterface.Controller):
             {'driver': 'SPEED', 'value': 0, 'uom': 49},    # wind speed
             {'driver': 'GV5', 'value': 0, 'uom': 49},      # gust speed
             {'driver': 'GV2', 'value': 0, 'uom': 4},       # feels like
-            {'driver': 'GV3', 'value': 0, 'uom': 4},       # heat index
-            {'driver': 'GV4', 'value': 0, 'uom': 4},       # wind chill
             {'driver': 'GV6', 'value': 0, 'uom': 82},      # rain
-            {'driver': 'GV15', 'value': 0, 'uom': 82},     # snow depth
-            {'driver': 'GV11', 'value': 0, 'uom': 25},     # climate coverage
-            {'driver': 'GV12', 'value': 0, 'uom': 25},     # climate intensity
             {'driver': 'GV13', 'value': 0, 'uom': 25},     # climate conditions
             {'driver': 'GV14', 'value': 0, 'uom': 22},     # cloud conditions
+            {'driver': 'GV9', 'value': 0, 'uom': 56},      # moon phase
             {'driver': 'DISTANC', 'value': 0, 'uom': 83},  # visibility
             {'driver': 'SOLRAD', 'value': 0, 'uom': 74},   # solar radiataion
-            {'driver': 'UV', 'value': 0, 'uom': 71},       # uv index
+            {'driver': 'GV17', 'value': 0, 'uom': 56},     # aqi
             {'driver': 'GVP', 'value': 30, 'uom': 25},     # log level
             ]
 

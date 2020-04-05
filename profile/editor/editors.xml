@@ -39,7 +39,7 @@
         <range uom="25" min="0" max="4" nls="EN_INTENSITY" />
     </editor>
     <editor id="WEATHER">
-        <range uom="25" min="0" max="33" nls="EN_WEATHER" />
+        <range uom="25" min="0" max="23" nls="EN_WEATHER" />
     </editor>
     <editor id="COVERAGE">
         <range uom="25" min="0" max="16" nls="EN_COVERAGE" />

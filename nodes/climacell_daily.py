@@ -10,7 +10,7 @@ import time
 import datetime
 from nodes import et3
 from nodes import uom
-#from nodes import weather_codes as wx
+from nodes import weather_codes as wx
 import node_funcs
 
 LOGGER = polyinterface.LOGGER
@@ -25,8 +25,8 @@ class DailyNode(polyinterface.Node):
             {'driver': 'CLIHUM', 'value': 0, 'uom': 22},   # humidity
             {'driver': 'BARPRES', 'value': 0, 'uom': 117}, # pressure
             {'driver': 'GV13', 'value': 0, 'uom': 25},     # weather
-            {'driver': 'GV14', 'value': 0, 'uom': 22},     # clouds
             {'driver': 'GV6', 'value': 0, 'uom': 82},      # precipitation
+            {'driver': 'RAINRT', 'value': 0, 'uom': 46},   # precipitation rate
             {'driver': 'GV7', 'value': 0, 'uom': 49},      # wind speed max
             {'driver': 'GV8', 'value': 0, 'uom': 49},      # wind speed min
             {'driver': 'GV18', 'value': 0, 'uom': 22},     # pop
@@ -53,15 +53,19 @@ class DailyNode(polyinterface.Node):
 
         return (min_val, max_val)
 
-    def update_forecast(self, forecast, latitude, elevation, plant_type, tags, force):
+    def update_forecast(self, forecast, latitude, elevation, plant_type, force):
 
-        epoch = int(forecast['timestamp'])
-        dow = time.strftime("%w", time.gmtime(epoch))
-        LOGGER.info('Day of week = ' + dow)
+        try:
+            (year, month, day) = forecast['observation_time']['value'].split('-')
+            forecast_day = datetime.datetime(int(year), int(month), int(day))
+            dow = forecast_day.weekday()
+        except Exception as e:
+            LOGGER.error('get day of week: ' + str(e))
+            dow = 0
 
-        (vmin, vmax) = self.get_min_max('humidity', forecast)
-        LOGGER.debug('humidity = ' + str(vmin) + ' / ' + str(vmax))
-        humidity = (vmin + vmax) / 2
+        (hmin, hmax) = self.get_min_max('humidity', forecast)
+        LOGGER.debug('humidity = ' + str(hmin) + ' / ' + str(hmax))
+        humidity = (hmin + hmax) / 2
         #humidity = (forecast['humidity'][0]['min']['value'] + forecast['humidity'][1]['max']['value']) / 2
 
         try:
@@ -75,17 +79,20 @@ class DailyNode(polyinterface.Node):
             self.update_driver('BARPRES', vmax, force, prec=1)
             # rate: self.update_driver('GV6', forecast['preciptiation'][0]['max']['value'], force, prec=1)
 
-            self.update_driver('GV6', forecast['preciptiation_accumulation']['value'], force, prec=1)
+            self.update_driver('GV6', forecast['precipitation_accumulation']['value'], force, prec=1)
+            self.update_driver('RAINRT', forecast['precipitation'][0]['max']['value'], force, prec=3)
 
             (vmin, vmax) = self.get_min_max('wind_speed', forecast)
+            Ws = (vmin + vmax) / 2
             self.update_driver('GV7', vmax, force, prec=1)
             self.update_driver('GV8', vmin, force, prec=1)
             self.update_driver('GV19', int(dow), force)
             self.update_driver('GV18', forecast['precipitation_probability']['value'], force, prec=1)
 
-            #TODO: add visibility(min/max), moon phase, rainrate, feelslike(min/max)
+            #TODO: add visibility(min/max), moon phase, feelslike(min/max)
 
             LOGGER.debug('Forecast coded weather = ' + forecast['weather_code']['value'])
+            self.update_driver('GV13', wx.weather_code(forecast['weather_code']['value']), force)
 
         except Exception as e:
             LOGGER.error('Forcast: ' + str(e))
@@ -93,18 +100,21 @@ class DailyNode(polyinterface.Node):
         # Calculate ETo
         #  Temp is in degree C and windspeed is in m/s, we may need to
         #  convert these.
-        J = datetime.datetime.fromtimestamp(epoch).timetuple().tm_yday
+        #J = datetime.datetime.fromtimestamp(epoch).timetuple().tm_yday
+        J = forecast_day.timetuple().tm_yday
 
-        Ws = forecast[tags['windspeed']]
-        if self.units != 'si':
-            LOGGER.info('Conversion of temperature/wind speed required')
-            tmin = et3.FtoC(tmin)
-            tmax = et3.FtoC(tmax)
-            Ws = et3.mph2ms(Ws)
-        else:
-            Ws = et3.kph2ms(Ws)
+        try:
+            if self.units != 'si':
+                LOGGER.info('Conversion of temperature/wind speed required')
+                tmin = et3.FtoC(tmin)
+                tmax = et3.FtoC(tmax)
+                Ws = et3.mph2ms(Ws)
+            else:
+                Ws = et3.kph2ms(Ws)
+        except Exception as e:
+            LoGGER.error('conversion issue: ' + str(e))
 
-        et0 = et3.evapotranspriation(tmax, tmin, None, Ws, float(elevation), forecast[tags['humidity_max']], forecast[tags['humidity_min']], latitude, float(plant_type), J)
+        et0 = et3.evapotranspriation(tmax, tmin, None, Ws, float(elevation), hmax, hmin, float(latitude), float(plant_type), J)
         if self.units == 'metric' or self.units == 'si' or self.units.startswith('m'):
             self.update_driver('GV20', round(et0, 2), force)
         else:
