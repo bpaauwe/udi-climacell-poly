@@ -27,19 +27,19 @@ The settings for this node are:
 #### Long Poll
    * How often to poll the climacell weather service for forecast data (in seconds). Note that the data is only updated every 10 minutes. Setting this to less may result in exceeding the free service rate limit.
 #### APIKey
-	* Your Climacell API key needed to authorize the connection the the climacell API.
+   * Your Climacell API key needed to authorize the connection the the climacell API.
 #### Latitude
-	* Specify the latitude of the location to use in the weather data queries (in decimal degrees).  
+   * Specify the latitude of the location to use in the weather data queries (in decimal degrees).  
 #### Longitude
-	* Specify the longitude of the location to use in the weather data queries (in decimal degrees).  
+   * Specify the longitude of the location to use in the weather data queries (in decimal degrees).  
 #### Elevation
-	* The elevation of your location, in meters. This is used for the ETo calculation.
+   * The elevation of your location, in meters. This is used for the ETo calculation.
 #### Forecast Days
-	* The number of days of forecast data to track (0 - 15).
+   * The number of days of forecast data to track (0 - 15).
 #### Plant Type
-	* Used for the ETo calculation to compensate for different types of ground cover. Default is 0.23
+   * Used for the ETo calculation to compensate for different types of ground cover. Default is 0.23
 #### Units
-	* set to 'us' or 'si' to control which units are used to display the weather data.
+   * set to 'us' or 'si' to control which units are used to display the weather data.
 
 ## Node substitution variables
 ### Current condition node
