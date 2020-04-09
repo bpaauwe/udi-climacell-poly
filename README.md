@@ -1,10 +1,12 @@
 
 # Climacell weather service
 
-This is a node server to pull weather data from the AERIS weather network and make it available to a [Universal Devices ISY994i](https://www.universal-devices.com/residential/ISY) [Polyglot interface](http://www.universal-devices.com/developers/polyglot/docs/) with  [Polyglot V2](https://github.com/Einstein42/udi-polyglotv2)
+This is a node server to pull weather data from the Climacell weather network and make it available to a [Universal Devices ISY994i](https://www.universal-devices.com/residential/ISY) [Polyglot interface](http://www.universal-devices.com/developers/polyglot/docs/) with  [Polyglot V2](https://github.com/Einstein42/udi-polyglotv2)
 
 (c) 2020 Robert Paauwe
 MIT license.
+
+Go to the [Climacell](http://www.climacell.co) website for more information the Climacell weather network.
 
 
 ## Installation
@@ -75,7 +77,7 @@ The settings for this node are:
 ## Requirements
 1. Polyglot V2.
 2. ISY firmware 5.0.x or later
-3. An account with Climacell weather (http://www.climacell.co)
+3. An account with Climacell weather (http://www.climacell.co/pricing)
 
 # Upgrading
 
