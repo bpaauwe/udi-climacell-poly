@@ -14,7 +14,7 @@
 	"title": "climacell Weather: A node server for weather data",
     	"author": "Bob Paauwe",
     	"version": "1.0.0",
-    	"date": "April 30, 2020",
+    	"date": "April 9, 2020",
     	"source": "https://github.com/bpaauwe/udi-climacell-poly",
 	"license": "https://github.com/bpaauwe/udi-climacell-poly/LICENSE"
 	} ]
