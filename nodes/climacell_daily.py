@@ -109,8 +109,6 @@ class DailyNode(polyinterface.Node):
                 tmin = et3.FtoC(tmin)
                 tmax = et3.FtoC(tmax)
                 Ws = et3.mph2ms(Ws)
-            else:
-                Ws = et3.kph2ms(Ws)
         except Exception as e:
             LOGGER.error('conversion issue: ' + str(e))
 
