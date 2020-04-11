@@ -14,6 +14,7 @@ ST-ctl-WINDDIR-NAME = Wind Direction
 ST-ctl-LUMIN-NAME = Light
 ST-ctl-SOLRAD-NAME = Solar Radiation
 ST-ctl-SPEED-NAME = Wind Speed
+ST-ctl-RAINRT-NAME = Rain Rate
 ST-ctl-UV-NAME = UV Index
 ST-ctl-GV0-NAME = High Temperature
 ST-ctl-GV1-NAME = Low Temperature

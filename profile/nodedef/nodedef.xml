@@ -15,7 +15,7 @@
       <st id="GV14" editor="PERCENT" />
       <st id="GV9" editor="int" />
       <st id="GV2" editor="TEMPERATURE" />
-      <st id="GV6" editor="RAIN" />
+      <st id="RAINRT" editor="RATE" />
       <st id="GV17" editor="int" />
       <st id="SOLRAD" editor="SOLARRAD" />
     </sts>

@@ -165,7 +165,7 @@ class Controller(polyinterface.Controller):
             if 'visibility' in jdata:
                 self.update_driver('DISTANC', jdata['visibility']['value'])
             if 'precipitation' in jdata:
-                self.update_driver('GV6', jdata['precipitation']['value'])
+                self.update_driver('RAINRT', jdata['precipitation']['value'])
             if 'dewpoint' in jdata:
                 self.update_driver('DEWPT', jdata['dewpoint']['value'])
             if 'feels_like' in jdata:
@@ -339,7 +339,7 @@ class Controller(polyinterface.Controller):
             {'driver': 'SPEED', 'value': 0, 'uom': 49},    # wind speed
             {'driver': 'GV5', 'value': 0, 'uom': 49},      # gust speed
             {'driver': 'GV2', 'value': 0, 'uom': 4},       # feels like
-            {'driver': 'GV6', 'value': 0, 'uom': 82},      # rain
+            {'driver': 'RAINRT', 'value': 0, 'uom': 46},   # rain
             {'driver': 'GV13', 'value': 0, 'uom': 25},     # climate conditions
             {'driver': 'GV14', 'value': 0, 'uom': 22},     # cloud conditions
             {'driver': 'GV9', 'value': 0, 'uom': 56},      # moon phase
