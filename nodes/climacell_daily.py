@@ -112,7 +112,7 @@ class DailyNode(polyinterface.Node):
             else:
                 Ws = et3.kph2ms(Ws)
         except Exception as e:
-            LoGGER.error('conversion issue: ' + str(e))
+            LOGGER.error('conversion issue: ' + str(e))
 
         et0 = et3.evapotranspriation(tmax, tmin, None, Ws, float(elevation), hmax, hmin, float(latitude), float(plant_type), J)
         if self.units == 'metric' or self.units == 'si' or self.units.startswith('m'):
