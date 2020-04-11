@@ -115,7 +115,7 @@ class Controller(polyinterface.Controller):
 
     def longPoll(self):
         LOGGER.debug('longpoll')
-        #self.query_forecast()
+        self.query_forecast()
 
     def shortPoll(self):
         self.query_conditions()
@@ -242,9 +242,9 @@ class Controller(polyinterface.Controller):
         LOGGER.info("In Discovery...")
 
         num_days = int(self.params.get('Forecast Days'))
-        if num_days < 14:
+        if num_days < 15:
             # delete any extra days
-            for day in range(num_days, 7):
+            for day in range(num_days, 15):
                 address = 'forecast_' + str(day)
                 try:
                     self.delNode(address)
