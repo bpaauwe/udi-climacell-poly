@@ -89,6 +89,11 @@ The nodeserver keeps track of the version number and when a profile rebuild is n
 
 # Release Notes
 
+- 1.0.4 04/11/2020
+   - Fix typo in forecast error message.
+   - Don't convert metric wind speed for ETo calc.
+- 1.0.3 04/11/2020
+   - Change current condition precipitation to precipitation rate.
 - 1.0.2 04/11/2020
    - Fix bugs with number of forecast days.
 - 1.0.1 04/10/2020
