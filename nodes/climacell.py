@@ -202,7 +202,7 @@ class Controller(polyinterface.Controller):
             request += '&lon=' + self.params.get('Longitude')
             request += '&unit_system=' + self.params.get('Units')
             request += '&start_time=now'
-            enddate = datetime.datetime.utcnow() + timedelta(days=int(self.params.get('Forecast Days')))
+            enddate = datetime.datetime.utcnow() + timedelta(days=(int(self.params.get('Forecast Days')) - 1))
             request += '&end_time=' + enddate.strftime('%Y-%m-%dT%H:%M:%SZ')
             request += '&fields=precipitation,precipitation_accumulation,temp,feels_like,wind_speed,baro_pressure,visibility,humidity,wind_direction,precipitation_probability,moon_phase,weather_code'
             headers = {
