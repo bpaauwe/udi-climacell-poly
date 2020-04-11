@@ -280,9 +280,9 @@ class Controller(polyinterface.Controller):
         if self.params.get_from_polyglot(self):
             LOGGER.debug('All required parameters are set!')
             self.configured = True
-            if int(self.params.get('Forecast Days')) > 12:
-                addNotice('Number of days of forecast data is limited to 12 days', 'forecast')
-                self.params.set('Forecast Days', 12)
+            if int(self.params.get('Forecast Days')) > 15:
+                addNotice('Number of days of forecast data is limited to 15 days', 'forecast')
+                self.params.set('Forecast Days', 15)
         else:
             LOGGER.debug('Configuration required.')
             LOGGER.debug('APIKey = ' + self.params.get('APIKey'))
