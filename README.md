@@ -89,6 +89,8 @@ The nodeserver keeps track of the version number and when a profile rebuild is n
 
 # Release Notes
 
+- 1.0.2 04/11/2020
+   - Fix bugs with number of forecast days.
 - 1.0.1 04/10/2020
    - Change the max number of forecast days to 15.
 - 1.0.0 04/09/2020
