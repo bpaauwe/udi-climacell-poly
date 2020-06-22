@@ -89,6 +89,8 @@ The nodeserver keeps track of the version number and when a profile rebuild is n
 
 # Release Notes
 
+- 1.0.5 06/22/2020
+   - Correct pressure range/precision.
 - 1.0.4 04/11/2020
    - Fix typo in forecast error message.
    - Don't convert metric wind speed for ETo calc.
