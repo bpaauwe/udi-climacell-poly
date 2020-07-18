@@ -104,7 +104,7 @@ class DailyNode(polyinterface.Node):
         J = forecast_day.timetuple().tm_yday
 
         try:
-            if self.units != 'si':
+            if self.units == 'imperial':
                 LOGGER.info('Conversion of temperature/wind speed required')
                 tmin = et3.FtoC(tmin)
                 tmax = et3.FtoC(tmax)
