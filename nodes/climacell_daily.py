@@ -25,7 +25,6 @@ class DailyNode(polyinterface.Node):
             {'driver': 'CLIHUM', 'value': 0, 'uom': 22},   # humidity
             {'driver': 'BARPRES', 'value': 0, 'uom': 117}, # pressure
             {'driver': 'GV13', 'value': 0, 'uom': 25},     # weather
-            {'driver': 'GV6', 'value': 0, 'uom': 82},      # precipitation
             {'driver': 'RAINRT', 'value': 0, 'uom': 46},   # precipitation rate
             {'driver': 'GV7', 'value': 0, 'uom': 49},      # wind speed max
             {'driver': 'GV8', 'value': 0, 'uom': 49},      # wind speed min
@@ -56,43 +55,54 @@ class DailyNode(polyinterface.Node):
     def update_forecast(self, forecast, latitude, elevation, plant_type, force):
 
         try:
-            (year, month, day) = forecast['observation_time']['value'].split('-')
+            (date, time) = forecast['startTime'].split('T')
+            (year, month, day) = date.split('-')
             forecast_day = datetime.datetime(int(year), int(month), int(day))
             dow = forecast_day.weekday()
         except Exception as e:
             LOGGER.error('get day of week: ' + str(e))
             dow = 0
 
-        (hmin, hmax) = self.get_min_max('humidity', forecast)
-        LOGGER.debug('humidity = ' + str(hmin) + ' / ' + str(hmax))
-        humidity = (hmin + hmax) / 2
-        #humidity = (forecast['humidity'][0]['min']['value'] + forecast['humidity'][1]['max']['value']) / 2
+        values = forecast['values']
+
+        humidity = forecast['values']['humidityAvg']
+        hmax = values['humidityMax']
+        hmin = values['humidityMin']
+        LOGGER.debug('humidity = {}'.format(humidity))
 
         try:
-            (tmin, tmax) = self.get_min_max('temp', forecast)
-            self.update_driver('GV0', tmax, force, prec=1)
-            self.update_driver('GV1', tmin, force, prec=1)
+            tmax = values['temperatureMax']
+            tmin = values['temperatureMin']
+            v = uom.conversion('GV0', self.units, values['temperatureMax'])
+            self.update_driver('GV0', v, force, prec=1)
+            v = uom.conversion('GV1', self.units, values['temperatureMin'])
+            self.update_driver('GV1', v, force, prec=1)
             self.update_driver('CLIHUM', humidity, force, prec=0)
 
             # TODO: min/max pressure
-            (vmin, vmax) = self.get_min_max('baro_pressure', forecast)
-            self.update_driver('BARPRES', vmax, force, prec=1)
+            v = uom.conversion('BARPRES', self.units, values['pressureSeaLevelMax'])
+            self.update_driver('BARPRES', v, force, prec=1)
+
+            # V4 API no longer supports accumulation
             # rate: self.update_driver('GV6', forecast['preciptiation'][0]['max']['value'], force, prec=1)
 
-            self.update_driver('GV6', forecast['precipitation_accumulation']['value'], force, prec=1)
-            self.update_driver('RAINRT', forecast['precipitation'][0]['max']['value'], force, prec=3)
+            #self.update_driver('GV6', forecast['precipitation_accumulation']['value'], force, prec=1)
 
-            (vmin, vmax) = self.get_min_max('wind_speed', forecast)
-            Ws = (vmin + vmax) / 2
-            self.update_driver('GV7', vmax, force, prec=1)
-            self.update_driver('GV8', vmin, force, prec=1)
+            v = uom.conversion('RAINRT', self.units, values['precipitationIntensity'])
+            self.update_driver('RAINRT', v, force, prec=3)
+
+            Ws = values['windSpeedAvg']
+            v = uom.conversion('GV7', self.units, values['windSpeedMax'])
+            self.update_driver('GV7', v, force, prec=1)
+            v = uom.conversion('GV8', self.units, values['windSpeedMin'])
+            self.update_driver('GV8', v, force, prec=1)
             self.update_driver('GV19', int(dow), force)
-            self.update_driver('GV18', forecast['precipitation_probability']['value'], force, prec=1)
+            self.update_driver('GV18', values['precipitationProbability'], force, prec=1)
 
             #TODO: add visibility(min/max), moon phase, feelslike(min/max)
 
-            LOGGER.debug('Forecast coded weather = ' + forecast['weather_code']['value'])
-            self.update_driver('GV13', wx.weather_code(forecast['weather_code']['value']), force)
+            #LOGGER.debug('Forecast coded weather = ' + forecast['weather_code']['value'])
+            self.update_driver('GV13', values['weatherCode'], force)
 
         except Exception as e:
             LOGGER.error('Forcast: ' + str(e))

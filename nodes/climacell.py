@@ -135,6 +135,16 @@ class Controller(polyinterface.Controller):
             request += '&lon=' + self.params.get('Longitude')
             request += '&unit_system=' + self.params.get('Units')
             request += '&fields=precipitation,precipitation_type,temp,feels_like,dewpoint,wind_speed,wind_gust,baro_pressure,visibility,humidity,wind_direction,fire_index,sunrise,sunset,cloud_cover,cloud_ceiling,cloud_base,surface_shortwave_radiation,moon_phase,weather_code,epa_aqi,epa_primary_pollutant,pm25,pm10,o3,no2,co,so2,epa_health_concern'
+
+            # currently only supports metric units!
+            request = 'https://data.climacell.co/v4/timelines?'
+            request += 'location=' + self.params.get('Latitude') + ','
+            request += self.params.get('Longitude')
+            request += '&timesteps=5m'
+            request += '&fields=precipitationIntensity,precipitationType,temperature,temperatureApparent,dewPoint,windSpeed,windGust,pressureSeaLevel,visibility,humidity,windDirection,cloudCover,cloudCeiling,cloudBase,solarGHI,weatherCode,epaIndex'
+
+            # sunrise/sunsetTime and moon phase require 1 day stimesteps
+
             headers = {
                     'apikey': self.params.get('APIKey'), 
                     'Content-Type': 'application/JSON'
@@ -143,44 +153,65 @@ class Controller(polyinterface.Controller):
             c = requests.get(request, headers=headers)
             jdata = c.json()
             c.close()
-            LOGGER.debug(jdata)
+
+            # data should be under 'data' / 'timelines' / [0] / 'intervals / [0]
+
+            interval = jdata['data']['timelines'][0]['intervals'][0]
+            LOGGER.debug('REALTIME: {}'.format(interval))
 
             if jdata == None:
                 LOGGER.error('Current condition query returned no data')
                 return
-        
-            if 'temp' in jdata:
-                self.update_driver('CLITEMP', jdata['temp']['value'])
 
-            if 'humidity' in jdata:
-                self.update_driver('CLIHUM', jdata['humidity']['value'])
-            if 'baro_pressure' in jdata:
-                self.update_driver('BARPRES', jdata['baro_pressure']['value'])
-            if 'wind_speed' in jdata:
-                self.update_driver('SPEED', jdata['wind_speed']['value'])
-            if 'wind_gust' in jdata:
-                self.update_driver('GV5', jdata['wind_gust']['value'])
-            if 'wind_direction' in jdata:
-                self.update_driver('WINDDIR', jdata['wind_direction']['value'])
-            if 'visibility' in jdata:
-                self.update_driver('DISTANC', jdata['visibility']['value'])
-            if 'precipitation' in jdata:
-                self.update_driver('RAINRT', jdata['precipitation']['value'])
-            if 'dewpoint' in jdata:
-                self.update_driver('DEWPT', jdata['dewpoint']['value'])
-            if 'feels_like' in jdata:
-                self.update_driver('GV2', jdata['feels_like']['value'])
-            if 'surface_shortwave_radiation' in jdata:
-                self.update_driver('SOLRAD', jdata['surface_shortwave_radiation']['value'])
-            if 'cloud_cover' in jdata:
-                self.update_driver('GV14', jdata['cloud_cover']['value'])
-            if 'weather_code' in jdata:
-                LOGGER.debug('weather code = ' + jdata['weather_code']['value'])
-                self.update_driver('GV13', wx.weather_code(jdata['weather_code']['value']))
+            values = interval['values']
+        
+            """
+            All values are metric so we will have to do the conversions
+            before sending the data to the ISY if the user want's something
+            else.
+            """
+            u = self.params.get('Units')
+            if 'temperature' in values:
+                LOGGER.debug('TEMPERATURE: {} {}'.format(u, values['temperature']))
+                v = uom.conversion('CLITEMP', u, values['temperature'])
+                self.update_driver('CLITEMP', v)
+            if 'humidity' in values:
+                self.update_driver('CLIHUM', values['humidity'])
+            if 'pressureSeaLevel' in values:
+                v = uom.conversion('BARPRES', u, values['pressureSeaLevel'])
+                self.update_driver('BARPRES', v)
+            if 'windSpeed' in values:
+                v = uom.conversion('SPEED', u, values['windSpeed'])
+                self.update_driver('SPEED', v)
+            if 'windGust' in values:
+                v = uom.conversion('SPEED', u, values['windGust'])
+                self.update_driver('GV5', v)
+            if 'windDirection' in values:
+                self.update_driver('WINDDIR', values['windDirection'])
+            if 'visibility' in values:
+                v = uom.conversion('DISTANC', u, values['visibility'])
+                self.update_driver('DISTANC', v)
+            if 'precipitationIntensity' in values:
+                v = uom.conversion('RAINRT', u, values['precipitationIntensity'])
+                self.update_driver('RAINRT', v)
+            if 'dewPoint' in values:
+                v = uom.conversion('DEWPT', u, values['dewPoint'])
+                self.update_driver('DEWPT', v)
+            if 'temperatureApparent' in values:
+                v = uom.conversion('GV2', u, values['temperatureApparent'])
+                self.update_driver('GV2', v)
+            if 'solarGHI' in values:
+                self.update_driver('SOLRAD', values['solarGHI'])
+            if 'cloudCover' in values:
+                self.update_driver('GV14', values['cloudCover'])
+            if 'weatherCode' in values:
+                LOGGER.debug('weather code = {}'.format(values['weatherCode']))
+                #self.update_driver('GV13', wx.weather_code(values['weather_code']))
+                self.update_driver('GV13', values['weatherCode'])
             if 'moon_phase' in jdata:
                 self.update_driver('GV9', wx.moon_phase(jdata['moon_phase']['value']))
-            if 'epa_aqi' in jdata:
-                self.update_driver('GV17', jdata['epa_aqi']['value'])
+            if 'epaIndex' in values:
+                self.update_driver('GV17', values['epaIndex'])
 
 
             '''
@@ -205,24 +236,39 @@ class Controller(polyinterface.Controller):
             enddate = datetime.datetime.utcnow() + timedelta(days=(int(self.params.get('Forecast Days')) - 1))
             request += '&end_time=' + enddate.strftime('%Y-%m-%dT%H:%M:%SZ')
             request += '&fields=precipitation,precipitation_accumulation,temp,feels_like,wind_speed,baro_pressure,visibility,humidity,wind_direction,precipitation_probability,moon_phase,weather_code'
+
+            request = 'https://data.climacell.co/v4/timelines?'
+            request += 'location=' + self.params.get('Latitude') + ','
+            request += self.params.get('Longitude')
+            request += '&timesteps=1d'
+            #request += '&startTime=now'
+            enddate = datetime.datetime.utcnow() + timedelta(days=(int(self.params.get('Forecast Days')) - 1))
+            request += '&endTime=' + enddate.strftime('%Y-%m-%dT%H:%M:%SZ')
+            request += '&fields=precipitationIntensity,precipitationType,precipitationProbability,temperatureMin,temperatureMax,temperatureApparent,dewPoint,windSpeedMin,windSpeedMax,windSpeedAvg,windGust,pressureSeaLevelMin,pressureSeaLevelMax,visibility,humidityMin,humidityMax,humidityAvg,windDirection,cloudCover,cloudCeiling,cloudBase,solarGHI,weatherCode,moonPhase'
+
             headers = {
                     'apikey': self.params.get('APIKey'), 
                     'Content-Type': 'application/JSON'
                     }
 
-            LOGGER.debug(request)
+            LOGGER.debug('-------------')
+            LOGGER.debug('FORECAST: {}'.format(request))
 
             c = requests.get(request, headers=headers)
             jdata = c.json()
             c.close()
-            #LOGGER.debug(jdata)
+
+            LOGGER.debug('FORECAST: {}'.format(jdata))
+            intervals = jdata['data']['timelines'][0]['intervals']
+            LOGGER.debug('FORECAST: {}'.format(intervals))
+            #LOGGER.debug('-------------')
 
             # Records are for each day, midnight to midnight
             day = 0
-            LOGGER.debug('Processing periods: %d' % len(jdata))
-            for forecast in jdata:
+            LOGGER.debug('Processing periods: %d' % len(intervals))
+            for forecast in intervals:
                 address = 'forecast_' + str(day)
-                LOGGER.debug(' >>>>   period ' + forecast['observation_time']['value'] + '  ' + address)
+                LOGGER.debug(' >>>>   period ' + forecast['startTime'] + '  ' + address)
                 LOGGER.debug(forecast)
                 self.nodes[address].update_forecast(forecast, self.params.get('Latitude'), self.params.get('Elevation'), self.params.get('Plant Type'), self.force)
                 day += 1
