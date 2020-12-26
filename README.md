@@ -4,7 +4,6 @@
 This is a node server to pull weather data from the Climacell weather network and make it available to a [Universal Devices ISY994i](https://www.universal-devices.com/residential/ISY) [Polyglot interface](http://www.universal-devices.com/developers/polyglot/docs/) with  [Polyglot V2](https://github.com/Einstein42/udi-polyglotv2)
 
 (c) 2020 Robert Paauwe
-MIT license.
 
 Go to the [Climacell](http://www.climacell.co) website for more information the Climacell weather network.
 
@@ -89,6 +88,8 @@ The nodeserver keeps track of the version number and when a profile rebuild is n
 
 # Release Notes
 
+- 1.1.0 12/26/2020
+   - Update to use V4 of the Climacell API.
 - 1.0.5 06/22/2020
    - Correct pressure range/precision.
 - 1.0.4 04/11/2020
