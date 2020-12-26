@@ -29,6 +29,7 @@ class DailyNode(polyinterface.Node):
             {'driver': 'GV7', 'value': 0, 'uom': 49},      # wind speed max
             {'driver': 'GV8', 'value': 0, 'uom': 49},      # wind speed min
             {'driver': 'GV18', 'value': 0, 'uom': 22},     # pop
+            {'driver': 'GV9', 'value': 0, 'uom': 25},      # moon phase
             {'driver': 'GV20', 'value': 0, 'uom': 106},    # mm/day
             ]
 
@@ -103,6 +104,9 @@ class DailyNode(polyinterface.Node):
 
             #LOGGER.debug('Forecast coded weather = ' + forecast['weather_code']['value'])
             self.update_driver('GV13', values['weatherCode'], force)
+
+            self.update_driver('GV9', values['moonPhase'])
+
 
         except Exception as e:
             LOGGER.error('Forcast: ' + str(e))

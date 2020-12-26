@@ -206,10 +206,7 @@ class Controller(polyinterface.Controller):
                 self.update_driver('GV14', values['cloudCover'])
             if 'weatherCode' in values:
                 LOGGER.debug('weather code = {}'.format(values['weatherCode']))
-                #self.update_driver('GV13', wx.weather_code(values['weather_code']))
                 self.update_driver('GV13', values['weatherCode'])
-            if 'moon_phase' in jdata:
-                self.update_driver('GV9', wx.moon_phase(jdata['moon_phase']['value']))
             if 'epaIndex' in values:
                 self.update_driver('GV17', values['epaIndex'])
 
@@ -388,7 +385,6 @@ class Controller(polyinterface.Controller):
             {'driver': 'RAINRT', 'value': 0, 'uom': 46},   # rain
             {'driver': 'GV13', 'value': 0, 'uom': 25},     # climate conditions
             {'driver': 'GV14', 'value': 0, 'uom': 22},     # cloud conditions
-            {'driver': 'GV9', 'value': 0, 'uom': 56},      # moon phase
             {'driver': 'DISTANC', 'value': 0, 'uom': 83},  # visibility
             {'driver': 'SOLRAD', 'value': 0, 'uom': 74},   # solar radiataion
             {'driver': 'GV17', 'value': 0, 'uom': 56},     # aqi

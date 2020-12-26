@@ -13,7 +13,6 @@
       <st id="DISTANC" editor="DISTANCE" />
       <st id="GV13" editor="CONDITIONS" />
       <st id="GV14" editor="PERCENT" />
-      <st id="GV9" editor="int" />
       <st id="GV2" editor="TEMPERATURE" />
       <st id="RAINRT" editor="RATE" />
       <st id="GV17" editor="int" />
@@ -45,6 +44,7 @@
       <st id="GV7" editor="SPEED" />
       <st id="GV8" editor="SPEED" />
       <st id="GV18" editor="PERCENT" />
+      <st id="GV9" editor="MOON" />
       <st id="GV20" editor="ET" />
     </sts>
     <cmds>

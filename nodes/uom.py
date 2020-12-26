@@ -34,7 +34,7 @@ def get_uom(units):
             'GV6': 82,      # rain
             'GV7': 49,      # wind max
             'GV8': 49,      # wind min  
-            'GV9': 56,      # moon phase
+            'GV9': 25,      # moon phase
             'GV10': 56,     # ozone
             'GV11': 25,     # climate coverage
             'GV12': 25,     # climate intensity
@@ -68,7 +68,7 @@ def get_uom(units):
             'GV6': 105,     # rain
             'GV7': 48,      # max wind
             'GV8': 48,      # min wind  
-            'GV9': 56,      # moon phase
+            'GV9': 25,      # moon phase
             'GV10': 56,     # ozone
             'GV11': 25,     # climate coverage
             'GV12': 25,     # climate intensity
@@ -102,7 +102,7 @@ def get_uom(units):
             'GV6': 105,     # rain
             'GV7': 48,      # max wind
             'GV8': 48,      # min wind   
-            'GV9': 56,      # moon phase
+            'GV9': 25,      # moon phase
             'GV10': 56,     # ozone
             'GV11': 25,     # climate coverage
             'GV12': 25,     # climate intensity

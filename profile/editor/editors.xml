@@ -45,6 +45,9 @@
     <editor id="COVERAGE">
         <range uom="25" min="0" max="16" nls="EN_COVERAGE" />
     </editor>
+    <editor id="MOON">
+        <range uom="25" min="0" max="7" nls="EN_MOON" />
+    </editor>
     <editor id="PRESSURE">
         <range uom="23" min="25" max="33" prec="3" />
         <range uom="117" min="800" max="1100" prec="1" />
