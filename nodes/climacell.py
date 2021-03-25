@@ -224,11 +224,11 @@ class Controller(polyinterface.Controller):
             LOGGER.info('Skipping connection because we aren\'t configured yet.')
             return
 
+        if int(self.params.get('Forecast Days')) < 1:
+            return
+
         try:
-            if int(self.params.get('Forecast Days')) > 1:
-                enddate = datetime.datetime.utcnow() + timedelta(days=(int(self.params.get('Forecast Days')) - 1))
-            else:
-                enddate = datetime.datetime.utcnow() + timedelta(days=(int(self.params.get('Forecast Days')))) + timedelta(minutes=1)
+            enddate = datetime.datetime.utcnow() + timedelta(days=(int(self.params.get('Forecast Days')))) + timedelta(minutes=1)
 
             request = 'https://api.climacell.co/v3/weather/forecast/daily?'
             request += 'lat=' + self.params.get('Latitude')
