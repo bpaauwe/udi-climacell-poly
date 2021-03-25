@@ -225,12 +225,16 @@ class Controller(polyinterface.Controller):
             return
 
         try:
+            if int(self.params.get('Forecast Days')) > 1:
+                enddate = datetime.datetime.utcnow() + timedelta(days=(int(self.params.get('Forecast Days')) - 1))
+            else:
+                enddate = datetime.datetime.utcnow() + timedelta(days=(int(self.params.get('Forecast Days')))) + timedelta(minutes=1)
+
             request = 'https://api.climacell.co/v3/weather/forecast/daily?'
             request += 'lat=' + self.params.get('Latitude')
             request += '&lon=' + self.params.get('Longitude')
             request += '&unit_system=' + self.params.get('Units')
             request += '&start_time=now'
-            enddate = datetime.datetime.utcnow() + timedelta(days=(int(self.params.get('Forecast Days')) - 1))
             request += '&end_time=' + enddate.strftime('%Y-%m-%dT%H:%M:%SZ')
             request += '&fields=precipitation,precipitation_accumulation,temp,feels_like,wind_speed,baro_pressure,visibility,humidity,wind_direction,precipitation_probability,moon_phase,weather_code'
 
@@ -239,7 +243,6 @@ class Controller(polyinterface.Controller):
             request += self.params.get('Longitude')
             request += '&timesteps=1d'
             #request += '&startTime=now'
-            enddate = datetime.datetime.utcnow() + timedelta(days=(int(self.params.get('Forecast Days')) - 1))
             request += '&endTime=' + enddate.strftime('%Y-%m-%dT%H:%M:%SZ')
             request += '&fields=precipitationIntensity,precipitationType,precipitationProbability,temperatureMin,temperatureMax,temperatureApparent,dewPoint,windSpeedMin,windSpeedMax,windSpeedAvg,windGust,pressureSeaLevelMin,pressureSeaLevelMax,visibility,humidityMin,humidityMax,humidityAvg,windDirection,cloudCover,cloudCeiling,cloudBase,solarGHI,weatherCode,moonPhase'
 
