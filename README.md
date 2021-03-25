@@ -88,6 +88,8 @@ The nodeserver keeps track of the version number and when a profile rebuild is n
 
 # Release Notes
 
+- 1.1.1 03/25/2021
+   - Fix forecast days == 1 bug.
 - 1.1.0 12/26/2020
    - Update to use V4 of the Climacell API.
 - 1.0.5 06/22/2020
