@@ -63,7 +63,6 @@ The settings for this node are:
  * sys.node.[address].CLIHUM  (forecasted humidity)
  * sys.node.[address].BARPRES (forecasted barometric pressure)
  * sys.node.[address].RAINRT  (forecasted rain rate)
- * sys.node.[address].GV6     (forecasted precipitation)
  * sys.node.[address].GV18    (forecasted chance of precipitation)
  * sys.node.[address].GV19    (day of week forecast is for)
  * sys.node.[address].GV0     (forecasted high temperature)
